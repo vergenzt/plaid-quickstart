@@ -9,6 +9,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const moment = require('moment');
 const cors = require('cors');
+const fs = require('fs');
+const https = require('https');
 
 const APP_PORT = process.env.APP_PORT || 8000;
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
@@ -503,7 +505,12 @@ app.use('/api', function (error, request, response, next) {
   response.json(formatError(error.response));
 });
 
-const server = app.listen(APP_PORT, function () {
+const sslOptions = {
+  key: fs.readFileSync(process.env.SSL_KEY_FILE),
+  cert: fs.readFileSync(process.env.SSL_CRT_FILE),
+};
+
+const server = https.createServer(sslOptions, app).listen(APP_PORT, function () {
   console.log('plaid-quickstart server listening on port ' + APP_PORT);
 });
 
